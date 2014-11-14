@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %} Forbidden {% endblock %}
+
+{% block content %}
+
+The 23andMe server has refused this request. This api associated a
+scope with the authenication token. Scope, in this context, can be
+thought of as access control. This error often means the request is
+asking for something outside of the scope associated with the
+authenication token. 
+
+{% endblock %} 
