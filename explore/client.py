@@ -17,11 +17,12 @@ class For23andMe(object):
     '''
 
     def __init__(self, access_token=None):
-        self._BASE_URL = "https://api.23andme.com/1/"
+        self._BASE_URL = "https://api.23andme.com/1"
         self._scope = '''basic names rs53576 rs1815739 rs6152 rs1800497 rs1805007 rs9939609
             rs662799 rs7495174 rs7903146 rs12255372 rs1799971
             rs17822931 rs4680 rs1333049 rs1801133 rs1051730 rs3750344
             rs4988235'''
+        self._scope = 'basic names genomes'
         self._demo = True
         self._LILY = 'SP1_MOTHER_V4'
         self._GREG = 'SP1_FATHER_V4'
@@ -96,8 +97,8 @@ class For23andMe(object):
         )
         print ( "url: {0}".format(url) )
         print ( "response: {0}".format(response) )
-        print ( "response.json: {0}".format(response.json()) )
-        print ( "response.text: {0}".format(response.text) )
+        # print ( "response.json: {0}".format(response.json()) )
+        # print ( "response.text: {0}".format(response.text) )
         
         if response.status_code == 200:
             return (200, response.text)
@@ -119,12 +120,12 @@ class For23andMe(object):
 
     # Genetics
     def get_genome_request(self, profile_id, unfiltered=False, demo=False):
-        uri = '/demo/' if demo else '/'
+        uri = '/demo/' if self._demo else '/'
         uri += 'genomes/' + profile_id
-        if unfiltered:
-            uri += '?unfiltered=True'
-        else:
-            uri += '?unfiltered=False'
+        # if unfiltered:
+        #     uri += '?unfiltered=True'
+        # else:
+        #     uri += '?unfiltered=False'
         return self._get_resource(uri)
 
     def get_genotype_request(self, profile_id, locations, unfiltered=False, demo=False):

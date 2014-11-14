@@ -1,14 +1,24 @@
 {% extends "base.html" %}
 
-{% block title %} Welcome page {% endblock %}
+{% block title %} Home page {% endblock %}
 
 {% block content %}
 
-And so it begins, what can we learn about SNPs? 
-<br/>
-<br/>
-
+{% if user_name %}
 username: {{ user_name }}
+{% endif %}
+
+{% if profiles %}
+<form action='/genomes/' >
+  <select name="profile_id" title="Profiles:" >
+    {% for p in profiles %}
+    <option value="{{p}}">{{p}}</option>
+    {% endfor %} 
+  </select>
+ <input type="submit" value="Send" /> 
+</form>
+{% endif %}
+
 <br/>
 <br/>
 <a href="/names/">Get names</a>

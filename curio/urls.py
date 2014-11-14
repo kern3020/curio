@@ -16,12 +16,15 @@ urlpatterns = patterns('',
     url(r'^user/$', 'explore.views.user_request'),
     url(r'^names/$', 'explore.views.names_request'),
 
-    url(r'^genome/$', 'explore.views.genome_request'),
+    url(r'^genomes/$', 'explore.views.redirect_genome_request'),
+
     url(r'^neanderthal/$', 'explore.views.neanderthal_request'),
 
     # error routing
     url(r'^/forbidden/', TemplateView.as_view(template_name='forbidden.html')),
     url(r'^admin/', include(admin.site.urls)),
+
 )
 
 urlpatterns += staticfiles_urlpatterns()
+

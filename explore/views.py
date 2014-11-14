@@ -16,7 +16,6 @@ def names_request(request):
     return render(request, page)
 
 def user_request(request):
-
     c = client.For23andMe(request.session[client.OAUTH_KEY])
     (status, context) = c.get_user_request()
     page = "home.html"
@@ -34,13 +33,17 @@ def neanderthal_request(request):
     return render( request, page )
 
 # Genetics 
-def genome_request(request):
+def redirect_genome_request(request):
     c = client.For23andMe(request.session[client.OAUTH_KEY])
-    (status, context) = c.get_genome_request() 
+    p_id = request.GET['profile_id']
+    (status, context) = c.get_genome_request(p_id) 
+    context = json.loads(context)
     page = "home.html"
+    with open("/home/jkern/data/genomic/23andme/lily_mendel.txt", "w") as outport:
+        outport.write(context[client.GENOME_KEY])
     if status == 403: 
         page = "forbidden.html"
-    return HttpResponse( request, page )
+    return render( request, page, {} )
 
 def genotype_request(request, snpid):
     c = client.For23andMe(request.session[client.OAUTH_KEY])
@@ -59,7 +62,6 @@ instead of cookies in order to protect the token from leaving the
 server as it allows access to significant sensitive user information.
 """
 def callback(request):
-    import pdb; pdb.set_trace()
     if client.CODE_KEY in request.GET:
         c = client.For23andMe()
         code = request.GET[client.CODE_KEY]
@@ -78,16 +80,10 @@ def callback(request):
         request.session[client.OAUTH_KEY] = access_token
 
         c = client.For23andMe(request.session[client.OAUTH_KEY])
-        names_json = c.get_names()
+        import pdb; pdb.set_trace()
+        (status, names_json) = c.get_names_request()
         names = json.loads(names_json)
         request.session["name"] = "%s %s" % (names['first_name'], names['last_name'])
-    elif client.GENOME_KEY in request.GET:
-        with open("/home/jkern/data/genomic/23andme/lily_mendel.txt", "w") as outport:
-            output.write(request.GET[client.GENOME_KEY])
-    elif client.NEANDERTHAL_KEY in request.GET:
-        print(json.dumps(request.GET[client.NEANDERTHAL_KEY]))
-    elif client.PROFILE_KEY in request.GET:
-        import pdb; pdb.set_trace()
     return redirect("/home/")
 
 
@@ -101,7 +97,24 @@ def home(request):
     if client.OAUTH_KEY in list(request.session.keys()):
         access_token = request.session[client.OAUTH_KEY]
         log.debug("user has oauth access token: %s" % access_token)
-        return render(request, 'home.html', { 'user_name': request.session['name']})
+        c = client.For23andMe(request.session[client.OAUTH_KEY])
+        (status, context) = c.get_user_request()
+        context = json.loads(context)
+        page = "home.html"
+        if status == 403: 
+            page = "forbidden.html"
+        context4template = {}
+        if 'last_name' in context:
+            if 'first_name' in context:
+                context4template['user_name'] = "{0} {1}".format(
+                    context['first_name'], context['last_name'])
+        list_of_profiles = []
+        for profile in context['profiles']:
+            if 'id' in profile:
+                list_of_profiles.append( profile['id'])
+        context4template['profiles'] = list_of_profiles
+        print("context: {0}".format(context4template))
+        return render(request, page, context4template)
     else:
         log.debug("user doesn't have a token yet, redirect to login...")
         return redirect( client.For23andMe().authorize() )
