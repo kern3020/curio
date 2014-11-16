@@ -1,4 +1,4 @@
-=== Getting started (dev)
+## Getting started (dev)
 
 This is a Django app. To get started
 
